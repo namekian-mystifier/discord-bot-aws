@@ -1,13 +1,12 @@
+# Get SSM parameters first
+import boto3
+import os
+import config
 import datetime
 import discord
 import logging
 from discord import app_commands
 from g4f.client import Client
-from openai_wrapper import summarize_chat_log
-
-import boto3
-import os
-import config
 
 REGION = os.environ["SSM_REGION"]
 SSM_PARAM_NAME = os.environ["SSM_PARAM_NAME"]
@@ -22,6 +21,9 @@ config.MAXIMUM_QUERY_SIZE = int(settings_list[2])
 config.PROVIDER = str(settings_list[3])
 config.LLM_MODEL = str(settings_list[4])
 INPUT_MESSAGE_LIMIT = int(settings_list[5])
+
+# import the llm wrapper after settings parameters
+from openai_wrapper import summarize_chat_log
 
 # we logging
 handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
