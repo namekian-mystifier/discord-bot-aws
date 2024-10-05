@@ -9,7 +9,7 @@ import boto3
 import os
 import config
 
-REGION = os.environ["SSM-REGION"]
+REGION = os.environ["SSM_REGION"]
 SSM_PARAM_NAME = os.environ["SSM_PARAM_NAME"]
 
 ssm_client = boto3.client('ssm', region_name=REGION)
