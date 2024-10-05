@@ -10,9 +10,10 @@ import os
 import config
 
 REGION = os.environ["SSM-REGION"]
+SSM_PARAM_NAME = os.environ["SSM_PARAM_NAME"]
 
-ssm_client = boto3.client('ssm', region_name='eu-west-1')
-parameter_json = ssm_client.get_parameter(Name="/DiscordSummarizerBot/Settings")
+ssm_client = boto3.client('ssm', region_name=REGION)
+parameter_json = ssm_client.get_parameter(Name=SSM_PARAM_NAME)
 settings_list = ["Parameter"]["Value"].split(",")
 
 config.GUILD_ID = int(settings_list[0])
