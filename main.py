@@ -53,7 +53,8 @@ def process_hours_to_timedelta(hours: int) -> datetime.timedelta:
     if elapsed_time < hours_timedelta:
         hours_timedelta = elapsed_time
     # log bot access
-    config.LAST_ACCESSED = datetime.datetime.now()
+    if hours_timedelta.seconds > 3600:
+        config.LAST_ACCESSED = datetime.datetime.now()  # do not log if time too small
     return hours_timedelta
 
 # test command to check app status
