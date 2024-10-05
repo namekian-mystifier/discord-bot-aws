@@ -44,17 +44,12 @@ def process_hours_to_timedelta(hours: int) -> datetime.timedelta:
     if hours > 24:
         hours = 24
     hours_timedelta = datetime.timedelta(hours=hours)
-    # if first time retrieving, retrieve the full requested time
-    if config.LAST_ACCESSED is None:
-        config.LAST_ACCESSED = datetime.datetime.now()
-        return hours_timedelta
-    elapsed_time = datetime.datetime.now() - config.LAST_ACCESSED
-    # shorten the summary for the sake of rate limits
-    if elapsed_time < hours_timedelta:
-        hours_timedelta = elapsed_time
-    # log bot access
-    if hours_timedelta.seconds > 3600:
-        config.LAST_ACCESSED = datetime.datetime.now()  # do not log if time too small
+    # if first time accessing, the calculations are skipped
+    if config.LAST_ACCESSED is not None:
+        elapsed_time = datetime.datetime.now() - config.LAST_ACCESSED
+        # shorten the summary for the sake of rate limits
+        if elapsed_time < hours_timedelta:
+            hours_timedelta = elapsed_time
     return hours_timedelta
 
 # test command to check app status
@@ -73,14 +68,17 @@ async def basedgreeting(interaction):
     guild=discord.Object(id=config.GUILD_ID)
 )
 async def summarize(interaction: discord.Interaction, hours: int):
-    # defer interaction (llm prompt takes a while)
-    await interaction.response.defer(thinking=True)
-
-    # shhh
-    g4f_client = Client()
-    
     # calculate the timestamp for the earliest message based on requested summary duration
     requested_duration = process_hours_to_timedelta(hours)
+    # to preserve rate limits, wait a minimum time between calls to the discord API
+    if requested_duration.seconds < config.MINIMUM_WAIT_TIME_BETWEEN_SUMMARIES:
+        wait_time = round((config.MINIMUM_WAIT_TIME_BETWEEN_SUMMARIES - requested_duration.seconds)/60)
+        await interaction.response.send_message("Please wait {wait_time} minutes before calling again to preserve rate limits.")
+        return None    
+    
+    # defer interaction (llm prompt takes a while)
+    await interaction.response.defer(thinking=True)
+    
     current_time = datetime.datetime.now()
     cutoff_time = current_time - requested_duration
     print("Cuttoff time:", str(cutoff_time))
@@ -100,10 +98,15 @@ async def summarize(interaction: discord.Interaction, hours: int):
     print("Chat log size: ", len(chat_log))
 
     # Prompt the thing
+    # shhh
+    g4f_client = Client()
     response_message = summarize_chat_log(g4f_client, chat_log)
     response_message = f"Here is what happened:\n" + response_message
     print("Response message:", response_message)
-
+    
+    # log request time
+    config.LAST_ACCESSED = datetime.datetime.now()
+    
     # Return the summary to Discord
     await interaction.followup.send(response_message[:config.DISCORD_MESSAGE_LIMIT])
 
