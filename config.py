@@ -6,4 +6,5 @@ LLM_MODEL = None
 DISCORD_MESSAGE_LIMIT = 2000
 INPUT_MESSAGE_LIMIT = None
 SUMMARIZE_QUERY = "Hello! Can you summarize the discord chat between members of a wow guild discord between {[%s]} in max 1900 characters and using bullet points for the main topics and get straight to the summary with no intro?"
+MINIMUM_WAIT_TIME_BETWEEN_SUMMARIES = 1800
 LAST_ACCESSED = None
