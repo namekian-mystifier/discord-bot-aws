@@ -13,7 +13,7 @@ SSM_PARAM_NAME = os.environ["SSM_PARAM_NAME"]
 
 ssm_client = boto3.client('ssm', region_name=REGION)
 parameter_json = ssm_client.get_parameter(Name=SSM_PARAM_NAME)
-settings_list = ["Parameter"]["Value"].split(",")
+settings_list = parameter_json["Parameter"]["Value"].split(",")
 
 config.GUILD_ID = int(settings_list[0])
 config.DISCORD_TOKEN = str(settings_list[1])
