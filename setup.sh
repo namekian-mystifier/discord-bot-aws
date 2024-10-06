@@ -1,9 +1,8 @@
-sudo yum groupinstall -y "Development Tools"
-sudo dnf install -y virtualenv
-git clone https://github.com/namekian-mystifier/discord-summarizer-bot
-cd discord-summarizer-bot
-git checkout lambda-deployment
-virtualenv venv --python=3.9
+git clone https://github.com/namekian-mystifier/discord-bot-aws
+cd discord-bot-aws
+git checkout ec2-deployment
+sudo apt update
+sudo apt install -y virtualenv
+virtualenv venv --python=3.12
 source venv/bin/activate
 pip install -r requirements.txt
-python
