@@ -5,6 +5,6 @@ PROVIDER = None
 LLM_MODEL = None
 DISCORD_MESSAGE_LIMIT = 2000
 INPUT_MESSAGE_LIMIT = None
-SUMMARIZE_QUERY = "Hello! Can you summarize the discord chat between {[%s]} using bullet points and in less than 1900 characters and get straight to the summary with no intro and don't add any information that isn't present in the discord chat?"
+SUMMARIZE_QUERY = "Hello! Can you summarize the discord chat between {[%s]} using bullet points and in less than 1900 characters and get straight to the summary with no intro and don't add any information that isn't present in the discord chat, and try to mention who said what?"
 MINIMUM_WAIT_TIME_BETWEEN_SUMMARIES = 1800
 LAST_ACCESSED = None
