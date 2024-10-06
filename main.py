@@ -26,7 +26,9 @@ INPUT_MESSAGE_LIMIT = int(settings_list[5])
 from openai_wrapper import summarize_chat_log
 
 # we logging
+logger = logging.getLogger(__name__)
 handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
+logger.addHandler(file_handler)
 
 # restricting permissions
 intents = discord.Intents.default()
@@ -45,9 +47,6 @@ def process_hours_to_timedelta(hours: int) -> datetime.timedelta:
         hours = 24
     hours_timedelta = datetime.timedelta(hours=hours)
     elapsed_time = datetime.datetime.now() - config.LAST_ACCESSED
-    # shorten the summary for the sake of rate limits
-    if elapsed_time < hours_timedelta:
-        hours_timedelta = elapsed_time
     return hours_timedelta
 
 # test command to check app status
@@ -68,25 +67,37 @@ async def basedgreeting(interaction):
 async def summarize(interaction: discord.Interaction, hours: int):
     # to preserve rate limits, wait a minimum time between calls to the discord API
     current_time = datetime.datetime.now()
+    elapsed_time = 0
 
+    print("LAST_ACCESSED is None:", config.LAST_ACCESSED is None)
+    logging.info("LAST_ACCESSED is None: " + str(config.LAST_ACCESSED is None))
+    
     # if the command was never accessed, skip this part
     if config.LAST_ACCESSED is not None:
-        diff = current_time - config.LAST_ACCESSED
-        if diff.seconds < config.MINIMUM_WAIT_TIME_BETWEEN_SUMMARIES :
+        elapsed_time = current_time - config.LAST_ACCESSED
+        if elapsed_time.seconds < config.MINIMUM_WAIT_TIME_BETWEEN_SUMMARIES :
             wait_time = round(diff/60)
             await interaction.response.send_message(f"Please wait {wait_time} minutes before calling again to preserve rate limits.")
             return None
     else:
         config.LAST_ACCESSED = current_time
+
+    print("Computed elapsed time:", elapsed_time)
+    logging.info("Elapsed time: " +  str(elapsed_time))
+    
     # defer interaction (llm prompt takes a while)
     await interaction.response.defer(thinking=True)
 
     # calculate the timestamp for the earliest message based on requested summary duration
-    requested_duration = process_hours_to_timedelta(hours)
+    hours_timedelta = process_hours_to_timedelta(hours)
+    # shorten the summary for the sake of rate limits
+    requested_duration = hours_timedelta if hours_timedelta > elapsed_time else elapsed_time
+    
     current_time = datetime.datetime.now()
     cutoff_time = current_time - requested_duration
-    print("Cuttoff time:", str(cutoff_time))
-
+    print("Cuttoff time: " + str(cutoff_time))
+    logging.info("Cuttoff time: " + str(cutoff_time))
+    
     # Assemble the chat log
     messages = [message async for message in interaction.channel.history(after=cutoff_time)]
     chat_log = ''
@@ -99,7 +110,8 @@ async def summarize(interaction: discord.Interaction, hours: int):
 {message.author.display_name}:
 {proc_message}
 '''
-
+    print("Chat log length:", len(chat_log))
+    logging.info("Chat log length: " + str(len(chat_log)))
     # shhh
     g4f_client = Client()
     # Prompt the thing
