@@ -27,7 +27,7 @@ from openai_wrapper import summarize_chat_log
 
 # we logging
 logger = logging.getLogger(__name__)
-handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
+file_handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
 logger.addHandler(file_handler)
 
 # restricting permissions
