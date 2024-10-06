@@ -76,7 +76,8 @@ async def summarize(interaction: discord.Interaction, hours: int):
             wait_time = round(diff/60)
             await interaction.response.send_message(f"Please wait {wait_time} minutes before calling again to preserve rate limits.")
             return None
-        
+    else:
+        config.LAST_ACCESSED = current_time
     # defer interaction (llm prompt takes a while)
     await interaction.response.defer(thinking=True)
 
