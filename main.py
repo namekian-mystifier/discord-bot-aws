@@ -46,7 +46,6 @@ def process_hours_to_timedelta(hours: int) -> datetime.timedelta:
     if hours > 24:
         hours = 24
     hours_timedelta = datetime.timedelta(hours=hours)
-    elapsed_time = datetime.datetime.now() - config.LAST_ACCESSED
     return hours_timedelta
 
 # test command to check app status
@@ -67,7 +66,7 @@ async def basedgreeting(interaction):
 async def summarize(interaction: discord.Interaction, hours: int):
     # to preserve rate limits, wait a minimum time between calls to the discord API
     current_time = datetime.datetime.now()
-    elapsed_time = 0
+    elapsed_time = datetime.timedelta(seconds=0)  # initial value
 
     print("LAST_ACCESSED is None:", config.LAST_ACCESSED is None)
     logging.info("LAST_ACCESSED is None: " + str(config.LAST_ACCESSED is None))
