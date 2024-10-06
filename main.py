@@ -73,7 +73,7 @@ async def summarize(interaction: discord.Interaction, hours: int):
     # to preserve rate limits, wait a minimum time between calls to the discord API
     if requested_duration.seconds < config.MINIMUM_WAIT_TIME_BETWEEN_SUMMARIES:
         wait_time = round((config.MINIMUM_WAIT_TIME_BETWEEN_SUMMARIES - requested_duration.seconds)/60)
-        await interaction.response.send_message("Please wait {wait_time} minutes before calling again to preserve rate limits.")
+        await interaction.response.send_message(f"Please wait {wait_time} minutes before calling again to preserve rate limits.")
         return None    
     
     # defer interaction (llm prompt takes a while)
