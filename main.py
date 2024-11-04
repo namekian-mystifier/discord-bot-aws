@@ -115,7 +115,6 @@ async def summarize(interaction: discord.Interaction, hours: int):
     g4f_client = Client()
     # Prompt the thing
     response_message = summarize_chat_log(g4f_client, chat_log)
-    response_message = f"Here is what happened:\n" + response_message
     print("Response message:", response_message)
     
     # log request time
